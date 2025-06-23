@@ -1,0 +1,5 @@
+fastapi[standard]
+psycopg2
+pytest
+locust
+pyroscope-io
