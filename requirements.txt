@@ -1,5 +1,6 @@
 fastapi[standard]
-psycopg2
+psycopg2-binary
 pytest
 locust
 pyroscope-io
+python-dotenv
