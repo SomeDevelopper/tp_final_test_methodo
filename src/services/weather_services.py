@@ -33,7 +33,6 @@ class WeatherService:
         async with httpx.AsyncClient() as client:
             response = await client.get(WeatherService.OPEN_METEO_URL, params=params)
             data = response.json()
-            print(data)
 
             if "daily" not in data:
                 raise HTTPException(status_code=500, detail="No daily forecast data returned")

@@ -4,3 +4,4 @@ pytest
 locust
 pyroscope-io
 python-dotenv
+redis[async]
