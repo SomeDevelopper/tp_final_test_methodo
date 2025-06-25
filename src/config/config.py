@@ -2,12 +2,13 @@ import os
 from dotenv import load_dotenv
 
 # Charger le .env à la racine
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', '.env'))
+load_dotenv(override=True)
 
 class Settings:
-    NOMINATIM_URL = os.environ.get("NOMINATIM_URL", "https://nominatim.openstreetmap.org/search")
-    OPEN_METEO_URL = os.environ.get("OPEN_METEO_URL", "https://api.open-meteo.com/v1/forecast")
-    PORT = int(os.environ.get("PORT", 3000))
-    REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
+    NOMINATIM_URL = os.getenv("NOMINATIM_URL", "https://nominatim.openstreetmap.org/search")
+    OPEN_METEO_URL = os.getenv("OPEN_METEO_URL", "https://api.open-meteo.com/v1/forecast")
+    PORT = int(os.getenv("PORT", 3000))
+    REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+    DATABASE_URL = os.getenv('DATABASE_URL')
 
 settings = Settings()

@@ -7,18 +7,38 @@ from models.weather_model import (
     HistoryWeather, HistoryWeatherResponse
 )
 from services.redis_services import RedisService
+from services.postgres_services import PostgresService
 
 router = APIRouter(prefix='/weather', tags=['Weather'])
 redis_service = RedisService()
 
 @router.get("/current/{city}", response_model=CurrentWeatherResponse)
 async def get_current_weather(city: str):
-    lat, lon = await GeocodingService.get_coordinates(city=city)
     cache_key = f"weather:current:{city.lower()}"
 
     cache_data = await redis_service.get(key=cache_key)
     if cache_data:
         return CurrentWeatherResponse.parse_raw(cache_data)
+    
+    db_data = await PostgresService.get_weather(city=city)
+    if db_data:
+        response = CurrentWeatherResponse(
+            city=city,
+            coordinates=Coordinates(latitude=lat, longitude=lon),
+            current_weather=CurrentWeather(
+            temperature=db_data.temperature,
+            windspeed=db_data.windspeed,
+            winddirection=db_data.winddirection,
+            weathercode=db_data.weathercode,
+            time=db_data.timestamp.isoformat()
+            )
+        )
+        await redis_service.set(cache_key, response.json(), ttl=300)
+        print("Une donnée a été ajoutée")
+        return response
+
+    lat, lon = await GeocodingService.get_coordinates(city=city)
+
     weather_data = await WeatherService.get_current_weather(lat=lat, lon=lon)
 
     current = weather_data.get("current_weather", {})
@@ -37,17 +57,31 @@ async def get_current_weather(city: str):
     )
 
     await redis_service.set(cache_key, current_weather_response.json(), ttl=300)
+    await PostgresService.save_weather(city=city, lat=lat, lon=lon, weather=current)
     print("Une donnée a été ajoutée")
     return current_weather_response
 
 
 @router.get('/forecast/{city}', response_model=ForecasWeatherResponse)
 async def get_forecast_weather(city: str):
-    lat, lon = await GeocodingService.get_coordinates(city=city)
+    
     cache_key = f"weather:forecast:{city.lower()}"
     cache_data = await redis_service.get(key=cache_key)
     if cache_data:
         return ForecasWeatherResponse.parse_raw(cache_data)
+    
+    forecast_db = await PostgresService.get_forecast_weather(city=city.lower())
+    if forecast_db:
+        response = ForecasWeatherResponse(
+            city=city,
+            coordinates=Coordinates(latitude=forecast_db.latitude, longitude=forecast_db.longitude),
+            forecast=forecast_db.forecast
+        )
+        await redis_service.set(key=cache_key, value=response.json(), ttl=300)
+        print('Une donnée à été ajoutée')
+        return response
+    
+    lat, lon = await GeocodingService.get_coordinates(city=city)
 
     weather_data = await WeatherService.get_forecast_weather(lat=lat, lon=lon)
 
@@ -64,6 +98,7 @@ async def get_forecast_weather(city: str):
         forecast=forecast
     )
     await redis_service.set(key=cache_key, value=forecast_weather_response.json(), ttl=300)
+    await PostgresService.save_forecast_weather(city=city, lat=lat, lon=lon, weather_forecast=forecast)
     print("Des données ont été ajoutées")
     return forecast_weather_response
 
@@ -74,6 +109,17 @@ async def get_history_weather(city: str):
     cache_data = await redis_service.get(key=cache_key)
     if cache_data:
         return HistoryWeatherResponse.parse_raw(cache_data)
+    
+    history_data = await PostgresService.get_history_weather(city=city)
+    if history_data:
+        response = ForecasWeatherResponse(
+            city=city,
+            coordinates=Coordinates(latitude=history_data.latitude, longitude=history_data.longitude),
+            history=history_data.history
+        )
+        await redis_service.set(key=cache_key, value=response.json(), ttl=300)
+        print('Une donnée à été ajoutée')
+        return response
 
     weather_data = await WeatherService.get_historical_weather(lat, lon)
 
@@ -90,5 +136,6 @@ async def get_history_weather(city: str):
     )
 
     await redis_service.set(key=cache_key, value=history_weather_response.json(), ttl=300)
+    await PostgresService.save_history_weather(city=city, lat=lat, lon=lon, weather_history=history)
     print('Des données ont été ajoutées')
     return history_weather_response

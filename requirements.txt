@@ -1,7 +1,11 @@
 fastapi[standard]
+sqlalchemy
+sqlalchemy[asyncio]
 psycopg2-binary
+pg8000
+asyncpg
 pytest
 locust
 pyroscope-io
 python-dotenv
-redis[async]
+redis
