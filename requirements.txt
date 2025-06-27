@@ -14,3 +14,4 @@ python-dotenv
 redis
 testcontainers
 schemathesis
+prometheus-fastapi-instrumentator
