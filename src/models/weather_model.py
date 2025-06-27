@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 from sqlalchemy import Column, String, Float, DateTime, JSON
-from models.database import Base
+from src.models.database import Base
 import datetime
 
 class Coordinates(BaseModel):
@@ -12,7 +12,6 @@ class CurrentWeather(BaseModel):
     temperature: float
     windspeed: float
     winddirection: float
-    weathercode: int
     time: str
 
 class ForecasWeather(BaseModel):
@@ -48,7 +47,6 @@ class WeatherData(Base):
     temperature = Column(Float)
     windspeed = Column(Float)
     winddirection = Column(Float)
-    weathercode = Column(Float)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
 class WeatherForcastData(Base):

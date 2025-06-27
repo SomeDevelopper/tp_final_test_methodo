@@ -1,10 +1,10 @@
 from fastapi import FastAPI
-from controllers import weather_controller, healther_controller
-from config.config import settings
+from src.controllers import weather_controller, healther_controller
+from src.config.config import settings
 from contextlib import asynccontextmanager
 import uvicorn
 import asyncio
-from models.database import init_db
+from src.models.database import init_db
 
 
 app = FastAPI()

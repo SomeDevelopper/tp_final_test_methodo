@@ -1,6 +1,6 @@
 from sqlalchemy import select
-from models.database import async_session
-from models.weather_model import WeatherData, WeatherForcastData, WeatherHistoryData
+from src.models.database import async_session
+from src.models.weather_model import WeatherData, WeatherForcastData, WeatherHistoryData
 import datetime
 
 class PostgresService:
@@ -10,7 +10,7 @@ class PostgresService:
             result = await session.execute(
                 select(WeatherData).where(WeatherData.city==city.lower())
             )
-            weather = result.scalar_one_or_none()
+            weather = result.scalars().first()
             return weather
         
     @staticmethod
@@ -42,6 +42,7 @@ class PostgresService:
         
     @staticmethod
     async def save_forecast_weather(city: str, lat: float, lon: float, weather_forecast: list):
+        print(weather_forecast)
         forecast_dict = [item.dict() for item in weather_forecast]
         async with async_session() as session:
             weather_forecast_city = WeatherForcastData(

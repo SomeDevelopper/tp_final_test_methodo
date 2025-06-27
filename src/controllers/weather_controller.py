@@ -1,18 +1,20 @@
 from fastapi import APIRouter
-from services.geocoding_services import GeocodingService
-from services.weather_services import WeatherService
-from models.weather_model import (
+from src.services.geocoding_services import GeocodingService
+from src.services.weather_services import WeatherService
+from src.models.weather_model import (
     CurrentWeather, CurrentWeatherResponse, Coordinates,
     ForecasWeather, ForecasWeatherResponse,
     HistoryWeather, HistoryWeatherResponse
 )
-from services.redis_services import RedisService
-from services.postgres_services import PostgresService
+from src.services.redis_services import RedisService
+from src.services.postgres_services import PostgresService
 
 router = APIRouter(prefix='/weather', tags=['Weather'])
 redis_service = RedisService()
 
-@router.get("/current/{city}", response_model=CurrentWeatherResponse)
+@router.get("/current/{city}", response_model=CurrentWeatherResponse, responses={
+    502: {"description": "Geocoding API error"},
+    404: {"description": "City {city} not found"}})
 async def get_current_weather(city: str):
     cache_key = f"weather:current:{city.lower()}"
 
@@ -24,12 +26,11 @@ async def get_current_weather(city: str):
     if db_data:
         response = CurrentWeatherResponse(
             city=city,
-            coordinates=Coordinates(latitude=lat, longitude=lon),
+            coordinates=Coordinates(latitude=db_data.latitude, longitude=db_data.longitude),
             current_weather=CurrentWeather(
             temperature=db_data.temperature,
             windspeed=db_data.windspeed,
             winddirection=db_data.winddirection,
-            weathercode=db_data.weathercode,
             time=db_data.timestamp.isoformat()
             )
         )
@@ -37,12 +38,14 @@ async def get_current_weather(city: str):
         print("Une donnée a été ajoutée")
         return response
 
-    lat, lon = await GeocodingService.get_coordinates(city=city)
+    lat, lon = await GeocodingService.get_coordinates(city=city, redis=redis_service)
 
     weather_data = await WeatherService.get_current_weather(lat=lat, lon=lon)
 
-    current = weather_data.get("current_weather", {})
+    if weather_data == "Error":
+        return {'status': 200, 'response': 'Aucune donnée trouvé'}
 
+    current = weather_data.get("current_weather", {})
 
     current_weather_response = CurrentWeatherResponse(
         city=city,
@@ -51,7 +54,6 @@ async def get_current_weather(city: str):
             temperature=current.get("temperature"),
             windspeed=current.get("windspeed"),
             winddirection=current.get("winddirection"),
-            weathercode=current.get("weathercode"),
             time=current.get("time")
         )
     )
@@ -62,7 +64,9 @@ async def get_current_weather(city: str):
     return current_weather_response
 
 
-@router.get('/forecast/{city}', response_model=ForecasWeatherResponse)
+@router.get('/forecast/{city}', response_model=ForecasWeatherResponse, responses={
+    502: {"description": "Geocoding API error"},
+    404: {"description": "City {city} not found"}})
 async def get_forecast_weather(city: str):
     
     cache_key = f"weather:forecast:{city.lower()}"
@@ -81,7 +85,7 @@ async def get_forecast_weather(city: str):
         print('Une donnée à été ajoutée')
         return response
     
-    lat, lon = await GeocodingService.get_coordinates(city=city)
+    lat, lon = await GeocodingService.get_coordinates(city=city, redis=redis_service)
 
     weather_data = await WeatherService.get_forecast_weather(lat=lat, lon=lon)
 
@@ -102,9 +106,10 @@ async def get_forecast_weather(city: str):
     print("Des données ont été ajoutées")
     return forecast_weather_response
 
-@router.get("/history/{city}", response_model=HistoryWeatherResponse)
+@router.get("/history/{city}", response_model=HistoryWeatherResponse, responses={
+    502: {"description": "Geocoding API error"},
+    404: {"description": "City {city} not found"}})
 async def get_history_weather(city: str):
-    lat, lon = await GeocodingService.get_coordinates(city)
     cache_key = f"weather:history:{city.lower()}"
     cache_data = await redis_service.get(key=cache_key)
     if cache_data:
@@ -112,7 +117,7 @@ async def get_history_weather(city: str):
     
     history_data = await PostgresService.get_history_weather(city=city)
     if history_data:
-        response = ForecasWeatherResponse(
+        response = HistoryWeatherResponse(
             city=city,
             coordinates=Coordinates(latitude=history_data.latitude, longitude=history_data.longitude),
             history=history_data.history
@@ -120,6 +125,8 @@ async def get_history_weather(city: str):
         await redis_service.set(key=cache_key, value=response.json(), ttl=300)
         print('Une donnée à été ajoutée')
         return response
+
+    lat, lon = await GeocodingService.get_coordinates(city=city, redis=redis_service)
 
     weather_data = await WeatherService.get_historical_weather(lat, lon)
 

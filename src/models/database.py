@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base
-from config.config import settings
+from src.config.config import settings
 
 DATABASE_URL = settings.DATABASE_URL
 
@@ -9,6 +9,6 @@ async_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 Base = declarative_base()
 
 async def init_db():
-    from models.weather_model import WeatherData
+    from src.models.weather_model import WeatherData
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

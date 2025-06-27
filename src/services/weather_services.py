@@ -1,6 +1,6 @@
 import httpx
 from fastapi import HTTPException
-from config.config import settings
+from src.config.config import settings
 
 class WeatherService:
     OPEN_METEO_URL = settings.OPEN_METEO_URL
@@ -36,7 +36,7 @@ class WeatherService:
 
             if "daily" not in data:
                 raise HTTPException(status_code=500, detail="No daily forecast data returned")
-
+            
         return data
 
         
@@ -58,4 +58,5 @@ class WeatherService:
 
         async with httpx.AsyncClient() as client:
             response = await client.get(WeatherService.OPEN_METEO_URL, params=params)
-            return response.json()
+            data = response.json()
+        return data

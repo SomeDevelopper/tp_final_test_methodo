@@ -1,10 +1,13 @@
 import redis.asyncio as redis
 import json
-from config.config import settings
+from src.config.config import settings
 
 class RedisService:
-    def __init__(self):
-        self.redis = redis.from_url(settings.REDIS_URL)
+    def __init__(self, redis_url: str = None):
+        if redis_url:
+            self.redis = redis.from_url(redis_url)
+        else:
+            self.redis = redis.from_url(settings.REDIS_URL)
 
     async def get(self, key):
         values = await self.redis.get(key)
