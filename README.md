@@ -24,7 +24,7 @@ Ce projet consiste à développer une API REST complète qui récupère des donn
 ### Requirements
 Pour ce projet, plusieurs choses sont requises pour son bon fonctionnement.
 - Vous devez avoir le daemon de Docker de lancé.
-- Posséder un environnement virtuel python (via python ou uv) avec une version 3.11
+- Posséder un environnement virtuel python (via python ou uv) avec une version 3.11.+
 
 Si vous devez installer les différents services, vous pouvez vous référez à ces différentes documentations : 
 - https://www.python.org/downloads/
@@ -105,8 +105,8 @@ Dans cette documentation, vous pourrez retrouver et vous pourrez tester 4 routes
 - `GET /health` - Vérification de l'état de l'API
 
 #### Service Monitoring
-Si vous avez bien créer vos containers docker, les services de monitoring (Grafana, Loki et Prometheus) sont créés et en train de tourner. 
-Vous pouvez vérifier cela ainsi que leurs ports en exécutant la commande suivante :
+Si aucune erreurs est ressortir lors de la création de vos containers docker, les services de monitoring (Grafana, Loki et Prometheus) sont créés et en train de tourner. 
+Vous pouvez vérifier cela, ainsi que leurs ports sur l'UI docker desktop ou en exécutant la commande suivante :
 ```cmd
 docker ps
 ```
@@ -115,17 +115,22 @@ http://localhost:3001
 Pour vous connectez, les crédentials sont les suivants : 
 **username** : admin
 **password** : admin
-Une fois connecté pour la première fois, ous serez amenez à modifier le mot de passe de l'administrateur.
+Une fois connecté pour la première fois, vous serez amenez à modifier le mot de passe de l'administrateur.
 
 Vous y retrouver le nombre de requêtes effectuées pour les différentes routes avec un code 200 et le nombre de requêtes pour chaque routes avec un code différent de 200.
 
 ### Lancement des Tests
 Pour ce projet, différents tests ont été mit en place, des tests TDD, tests de contrats et stressing test.
 #### Tests Unitaires
-Ces tests nous permettent de tester les fonctionnalités du code sources et ainsi valider leurs bon fonctionnements. Le but étant de courvir l'ensemble du code source.
+Ces tests nous permettent de tester les fonctionnalités du code sources et ainsi valider leur bon fonctionnement. Le but étant de courvir l'ensemble du code source.
 Pour éxécuter les tests unitaires, on peut exécuter la commande : 
+Sur Linux/MacOS :
 ```cmd
 coverage run -m pytest && coverage report -m
+```
+Sur windows : 
+```cmd
+coverage run -m pytest ; coverage report -m
 ```
 !!!Attention Avant d'exécuter les tests, vous devez avoir votre docker daemon qui tourne en arrière-plan, il est nécessaire pour leur bon fonctionnement.
 
@@ -152,4 +157,4 @@ http://localhost:8089
 Vous pouvez ensuite configurer un nombre d'utilisateur pour le tests et les lancez.
 Vous aurez durant et à la fin du test, vous aurez une vue sur différente information comme le temps de réponse, la route utilisée.
 
-!!!Attention Pensez bien à lancer le serveur API avant d'effectuer les tests
+!!!Attention Pensez bien à lancer le serveur API avant d'effectuer la commande locust ainsi que les tests
