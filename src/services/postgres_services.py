@@ -42,7 +42,6 @@ class PostgresService:
         
     @staticmethod
     async def save_forecast_weather(city: str, lat: float, lon: float, weather_forecast: list):
-        print(weather_forecast)
         forecast_dict = [item.dict() for item in weather_forecast]
         async with async_session() as session:
             weather_forecast_city = WeatherForcastData(
