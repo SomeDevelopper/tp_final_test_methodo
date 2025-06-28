@@ -40,7 +40,6 @@ async def test_postgres_service_current(monkeypatch):
         result = await PostgresService.get_weather(city=city)
 
         assert result is not None
-        print(result)
         assert result.city == city.lower()
         assert result.temperature == 25.0
 
