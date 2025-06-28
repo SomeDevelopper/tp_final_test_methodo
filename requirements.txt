@@ -8,7 +8,6 @@ pytest-asyncio
 pytest-cov
 coverage
 locust
-pyroscope-io
 python-dotenv
 redis
 testcontainers

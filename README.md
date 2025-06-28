@@ -86,7 +86,7 @@ Une fois tous les containers créés, vous pouvez maintenant lancer le serveur F
 Pour cela exécuté la commande suivant : 
 - Avec l'**environnement python**
 ```cmd
-fastapi run app.py
+python app.py
 ```
 - Avec l'**environnement uv** 
 ```cmd
