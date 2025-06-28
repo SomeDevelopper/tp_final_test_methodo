@@ -68,6 +68,11 @@ pip install -r requirements.txt
 uv pip install -r requirements.txt
 ```
 
+### Variables d'environnement
+Un fichier **.env** est requis pour le fonctionnement du projet. Si aucun fichier n'est mit à la racine du projet, celui-ci utilisera les variables de configuration prédéfinits.
+Un fichier **.env.example** est renseigné pour vous aidez sur la structure.
+Une fois le fichier **.env** créer, pensez à supprimer le fichier **.env.example**
+
 ### Lancement des services
 Avant de lancé le serveur API, vous devez monter les images et créez les containers des différents services avec docker.
 Pour cela, exécutez la commande suivante :
