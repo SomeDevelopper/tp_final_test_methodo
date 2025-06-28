@@ -24,30 +24,35 @@ Ce projet consiste à développer une API REST complète qui récupère des donn
 ### Requirements
 Pour ce projet, plusieurs choses sont requises pour son bon fonctionnement.
 - Vous devez avoir le daemon de Docker de lancé.
-- Posséder un environnement virtuel python (via python ou uv)
+- Posséder un environnement virtuel python (via python ou uv) avec une version 3.11
+
+Si vous devez installer les différents services, vous pouvez vous référez à ces différentes documentations : 
+- https://www.python.org/downloads/
+- https://docs.docker.com/engine/install/
+- https://docs.astral.sh/uv/getting-started/installation/
 
 Pour vérifier si votre daemon Docker est lancé :
-Sur Linux :
+Sur **Linux** :
 ```cmd
 sudo status docker
 ```
 
-Sur Windows :
+Sur **Windows** :
 ```cmd
 docker --version
 ```
 
-Sur MacOS :
+Sur **MacOS** :
 ```cmd
 docker info
 ```
 
 Pour créer un environnement virtuel python :
-Avec python :
+Avec **python** :
 ```cmd
 python3 -m venv .venv
 ```
-Avec uv :
+Avec **uv** :
 ```cmd
 uv init
 ```
@@ -74,17 +79,19 @@ docker compose up --build -d
 Une fois tous les containers créés, vous pouvez maintenant lancer le serveur Fast API.
 
 Pour cela exécuté la commande suivant : 
-- Avec l'environnement python 
+- Avec l'**environnement python**
 ```cmd
 fastapi run app.py
 ```
-- Avec l'environnement uv 
+- Avec l'**environnement uv** 
 ```cmd
 uv run app.py
 ```
 
 Une fois le serveur lancé, vous pouvez maintenant accéder à la documentation swagger des routes de l'API via l'url suivant : 
 http://localhost:3000/docs
+
+!!!Warning Pensez à bien le laisser tourné durant tout le processus, pour les tests ainsi que le monitoring
 
 Dans cette documentation, vous pourrez retrouver et vous pourrez tester 4 routes :
 - `GET /weather/current/:city` - Météo actuelle (qui prend en paramètre une ville)
